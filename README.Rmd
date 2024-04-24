@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Introduction:
 
-  Hot Ones is a internet show about guests from various industries eating spicy wings that get increasingly more hot wing after wing. The guest is also interviewed as the show goes on. The show is beloved by audiences and has a 3 sets of data that has been scraped off of the Hot Ones Wikipedia. The resident wing enjoyers hope to enjoy disecting a dataset about just that.
+  Hot Ones is an internet show about guests from various industries eating spicy wings that get increasingly hot wing after wing. The guest is also interviewed as the show goes on. The show is beloved by audiences and has 3 sets of data that have been scraped off of the Hot Ones Wikipedia. The resident wing enjoyers hope to enjoy dissecting a dataset about just that.
   
 ## Mission Statement:
   
@@ -19,7 +19,7 @@ knitr::opts_chunk$set(echo = TRUE)
   
 ## Importing the data sets
 
-  There are 3 data sets that make up the hot ones data set. all of them being important to our mission. One is episodes, the people featured and data if they finished their wings or not. Then Sauces, where we can see how hota sauce was and the name. Then Seasons which has other notes. 
+  There are 3 data sets that make up the hot ones data set. all of them being important to our mission. One is episodes, the people featured and data if they finished their wings or not. Then Sauces, where we can see how hot each sauce is and the name. Then Seasons which has other notes. 
 
 ```{r}
 episodes <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-08-08/episodes.csv')
@@ -36,15 +36,15 @@ head(sauces)
 ```{r}
 head(episodes)
 ```
-## Questions for data set (Please add more if there is somthing you want to explore!)
-How many pepole have failed the show?
-What season has the hottests sauce?
+## Questions for data set (Please add more if there is something you want to explore!)
+How many people have failed the show?
+What season has the hottest sauce?
 What is the hottest sauce featured on the show?
-What industrys have the most pepole on hot ones? is there any corrolations to their performance?
-What corrlations can be made for each seasons and what changes were made?
+What industries have the most people on hot ones? Are there any correlations to their performance?
+What correlations can be made for each season, and what changes were made?
 
 ## Cleaning The data/preparing data
-As our data sets are scraped off the web, it would be assumed that there would be viggorous cleaning needed for the set itself. However, Tidy Tuesday helps us with a cleaning script that had alredy been ran on the data. We have included the cleaning script here (it will fail as its alredy been ran with the package)
+As our data sets are scraped off the web, it would be assumed that there would be viggorous cleaning needed for the set itself. However, Tidy Tuesday helps us with a cleaning script that had alredy been ran on the data. We have included the cleaning script here (it will fail as it has already been ran with the package)
 ```{r}
 ### Suggested TidyTuesday dataset: 
 ### 300 Hot Ones episodes (guests and sauces), seasons 1-21 (current)
@@ -53,7 +53,7 @@ As our data sets are scraped off the web, it would be assumed that there would b
 #https://github.com/rfordatascience/tidytuesday/blob/master/data/2023/2023-08-08/readme.md
 ```
 
-There are a couple of columns that are not needed for our exploration. The notes column in the seasons table is not important to our exploration.(add cleaning that you needed for your personal exploration) We removed all this with a cleaning script of our own. Shown Below.
+There are a couple of columns that are not needed for our exploration. The notes column in the season's table is not important to our exploration.(add cleaning that you need for your personal exploration) We removed all this with a cleaning script of our own. Shown Below.
 ```{r}
 library(tidyverse)
 library(rvest)
@@ -71,12 +71,12 @@ summary(sauces)
 
 summary(seasons)
 ```
-**The Longest data set is the episodes one, with 300 individual entries. We can also see that the show has been active for around 8 years and counting. The finished column also tells us how many people have failed the show, with 15 failing to eat all the wings. This is much lower than I personally expected. We can also observe the hottest a sauce gets on the show. The highest scoville sauce was 2000000 units which is  880 times hotter than your garden variety jalapeño.**
+**The Longest data set is the episodes one, with 300 individual entries. We can also see that the show has been active for around 8 years and counting. The finished column also tells us how many people have failed the show, with 15 failing to eat all the wings. This is much lower than I personally expected. We can also observe the hottest sauce on the show. The highest scoville sauce was 2000000 units which is  880 times hotter than your garden variety jalapeño.**
 
 ## Data Exploration
 
-# Spenser's Exploration
-I was interested in the failure rate of each seasons, and how where a person comes from can affect their spice tolerance. I had to add a new column of all the industries that each person is from, then take averages of the failure rate.
+### Spenser's Exploration
+I was interested in the failure rate of each season and how where a person comes from can affect their spice tolerance. I had to add a new column of all the industries that each person is from and then take averages of the failure rate.
 ```{r}
 #new occupation column 
 occupation <- c(
