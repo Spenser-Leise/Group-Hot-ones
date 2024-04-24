@@ -1,5 +1,5 @@
 ---
-title: "HOT ONES Report file"
+title: "README"
 author: "Spenser Leise"
 date: "2024-04-15"
 output: html_document
@@ -9,9 +9,17 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+## Introduction:
+
+  Hot Ones is a internet show about guests from various industries eating spicy wings that get increasingly more hot wing after wing. The guest is also interviewed as the show goes on. The show is beloved by audiences and has a 3 sets of data that has been scraped off of the Hot Ones Wikipedia. The resident wing enjoyers hope to enjoy disecting a dataset about just that.
+  
+## Mission Statement:
+  
+  To find various correlations through the 3 data sets that reveal key insights to the show, with hopes to find answers for questions of various magnitudes. We want to expand on the data as well as draw correlations from what is present. 
+  
 ## Importing the data sets
 
-There are 3 datasets that make up the hot ones dataset. all of them being important to our mission. One is episodes, the pepole featured and data if they finished their wings or not. Then Sauces, where we can see how hot a sauce was and the name. Then Seasons which has other notes. 
+  There are 3 data sets that make up the hot ones data set. all of them being important to our mission. One is episodes, the people featured and data if they finished their wings or not. Then Sauces, where we can see how hota sauce was and the name. Then Seasons which has other notes. 
 
 ```{r}
 episodes <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-08-08/episodes.csv')
@@ -19,477 +27,169 @@ sauces <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tid
 seasons <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-08-08/seasons.csv')
 ```
 ```{r}
-seasons
-sauces
-episodes
+head(seasons)
 ```
-##Questions for data set (Please add more if there is somthing you want to explore!)
+```{r}
+head(sauces)
+```
+
+```{r}
+head(episodes)
+```
+## Questions for data set (Please add more if there is somthing you want to explore!)
 How many pepole have failed the show?
 What season has the hottests sauce?
 What is the hottest sauce featured on the show?
 What industrys have the most pepole on hot ones? is there any corrolations to their performance?
 What corrlations can be made for each seasons and what changes were made?
 
-## Cleaning The data (There IS a cleaning script, so this should be relitively easy)
+## Cleaning The data/preparing data
+As our data sets are scraped off the web, it would be assumed that there would be viggorous cleaning needed for the set itself. However, Tidy Tuesday helps us with a cleaning script that had alredy been ran on the data. We have included the cleaning script here (it will fail as its alredy been ran with the package)
+```{r}
+### Suggested TidyTuesday dataset: 
+### 300 Hot Ones episodes (guests and sauces), seasons 1-21 (current)
+### Original script by Carl Börstell (@borstell)
+
+#https://github.com/rfordatascience/tidytuesday/blob/master/data/2023/2023-08-08/readme.md
+```
+
+There are a couple of columns that are not needed for our exploration. The notes column in the seasons table is not important to our exploration.(add cleaning that you needed for your personal exploration) We removed all this with a cleaning script of our own. Shown Below.
 ```{r}
 library(tidyverse)
 library(rvest)
 library(here)
 library(data.table)
+seasons <- seasons %>%
+  select(-note)
 
-# Season information
-seasons <- rvest::read_html("https://en.wikipedia.org/wiki/Hot_Ones") |>
-  rvest::html_table(header = TRUE) |> 
-  _[[2]][-1,] |>
-  purrr::set_names(c("season", 
-                     "episodes", 
-                     "episodes2", 
-                     "original_release", 
-                     "last_release")) |>
-  dplyr::select(-episodes2) |> 
-  tidyr::separate_wider_delim(
-    episodes, " + ", 
-    names = c("episodes", "note"),
-    too_few = "align_start"
-  ) |> 
-  dplyr::mutate(
-    # Season 21 coerced to NA since it isn't finished.
-    episodes = as.integer(episodes),
-    dplyr::across(
-      dplyr::ends_with("_release"),
-      \(date_string) {
-        # Date format is "March 12, 2015 (2015-03-12)"
-        stringr::str_extract(date_string, "\\d{4}-\\d{2}-\\d{2}") |> 
-          lubridate::ymd()
-      }
-    )
-  )
-
-# List of sauces for each season
-sauces <- rvest::read_html("https://en.wikipedia.org/wiki/Hot_Ones") |> 
-  rvest::html_table(header = TRUE) |>
-  _[3:23] |>
-  purrr::list_rbind(names_to = "season") |>
-  purrr::set_names(c("season", 
-                     "sauce_number", 
-                     "sauce_name", 
-                     "scoville")) |>
-  dplyr::mutate(scoville = as.integer(gsub("[^0-9]", "", scoville)))
-
-# Guests who did not finish all wings
-hall_of_shame <- rvest::read_html("https://en.wikipedia.org/wiki/Hot_Ones") |> 
-  rvest::html_elements("ul") |>
-  rvest::html_text() |>
-  dplyr::as_tibble() |>
-  dplyr::filter(dplyr::row_number() == 48) |> # removes a footnote row
-  tidyr::separate_longer_delim(value, "\n") |>
-  dplyr::rename(guest = value) |>
-  tidyr::separate_wider_delim(guest, delim = " (", 
-                              names = c("guest", "comment"),
-                              too_few = "align_start") |>
-  dplyr::mutate(comment = gsub("\\)", "", comment)) |> 
-  # Turn that into usable data.
-  dplyr::mutate(
-    guest_appearance_number = dplyr::if_else(
-      is.na(comment), 1L, 2L
-    ),
-    finished = FALSE
-  ) |> 
-  dplyr::select(-comment)
-
-# Guest names semi-automatically extracted from
-# https://en.wikipedia.org/wiki/List_of_Hot_Ones_episodes
-guests <- {
-  tibble(
-    guest = c(
-      "Tony Yayo",
-      "Anthony Rizzo",
-      "Machine Gun",
-      "Gunplay",
-      "Ja Rule",
-      "B.o.B.",
-      "Prince Amukamara",
-      "DJ Khaled",
-      "Curren$y",
-      "Tinashe",
-      "Tommy Chong",
-      "T.J. Miller",
-      "Coolio",
-      "Joey Fatone",
-      "Michael Rapaport",
-      "Key & Peele",
-      "Riff Raff",
-      "Eddie Huang",
-      "Chris D'Elia",
-      "Mike Epps",
-      "Jim Gaffigan",
-      "Carly Aquilino",
-      "Redman",
-      "Rob Gronkowski",
-      "Rob Corddry",
-      "Jeff Ross",
-      "David Cross",
-      "Eric André",
-      "Joe Budden",
-      "Matty Matheson",
-      "RZA and Paul Banks",
-      "Bert Kreischer",
-      "YG",
-      "Jay Pharoah",
-      "Harley Morenstein",
-      "Travis Kelce",
-      "Hasan Minhaj",
-      "Kevin Hart",
-      "Martin Garrix",
-      "Bobby Lee",
-      "Tony Hawk",
-      "Action Bronson",
-      "T-Pain",
-      "Rachael Ray",
-      "Tom Colicchio",
-      "Post Malone",
-      "N.O.R.E.",
-      "James Franco and Bryan Cranston",
-      "Padma Lakshmi",
-      "Joey (CoCo) Diaz",
-      "Danny Brown",
-      "Ricky Gervais",
-      "Charlie Day",
-      "Mac DeMarco",
-      "Russell Brand",
-      "Charlie Sloth",
-      "Kyle Kinane",
-      "Dax Shepard",
-      "H3H3 Productions",
-      "Keke Palmer",
-      "Charlamagne Tha God",
-      "DJ Snake",
-      "Guy Fieri",
-      "Kevin Love",
-      "Neil deGrasse Tyson",
-      "Thomas Middleditch",
-      "Andy Cohen",
-      "Tom Arnold",
-      "Coyote Peterson",
-      "Nick Kroll",
-      "Brett Baker (superfan)",
-      "Seth Rogen and Dominic Cooper",
-      "Cara Delevingne",
-      "Liam Payne",
-      "Steve-O",
-      "Vince Staples",
-      "Adam Richman",
-      "ASAP Ferg",
-      "Kevin Durant",
-      "Henry Rollins",
-      "Dillon Francis",
-      "Joji",
-      "Wanda Sykes",
-      "Terry Crews",
-      "Gary Vaynerchuk",
-      "Artie Lange",
-      "Chris Jericho",
-      "Gabrielle Union",
-      "Wale",
-      "Bob Saget",
-      "Mario Batali",
-      "Alexa Chung",
-      "Logic",
-      "Casey Neistat",
-      "NA",
-      "Chili Klaus",
-      "Taraji P. Henson",
-      "Sasha Banks",
-      "Von Miller",
-      "Rich Brian",
-      "Hannibal Buress",
-      "Michael B. Jordan",
-      "Ty Burrell",
-      "Charlize Theron",
-      "Adam Rippon",
-      "Gabriel Iglesias",
-      "Shawn Mendes",
-      "Philip DeFranco",
-      "Trick Daddy",
-      "Tyra Banks",
-      "Alton Brown",
-      "John Mayer",
-      "Johnny Knoxville",
-      "Natalie Portman",
-      "Marques Brownlee",
-      "Joel Embiid",
-      "Tom Segura",
-      "Joji and Rich Brian",
-      "Wiz Khalifa",
-      "Al Roker",
-      "Michael Cera",
-      "Issa Rae",
-      "Rhett & Link",
-      "Jeff Goldblum",
-      "Eddie Huang",
-      "Chrissy Teigen",
-      "Tenacious D",
-      "Anderson .Paak",
-      "Adam Carolla",
-      "Lil Yachty",
-      "E-40",
-      "Lilly Singh",
-      "Blake Griffin",
-      "Bill Burr",
-      "Pete Holmes",
-      "Vanessa Hudgens",
-      "Weird Al Yankovic",
-      "Gordon Ramsay",
-      "Abbi and Ilana",
-      "Seth Meyers",
-      "Ken Jeong",
-      "Desus and Mero",
-      "Offset",
-      "Billie Eilish",
-      "Shaq",
-      "Theo Von",
-      "Jimmy Butler",
-      "Chelsea Handler",
-      "Scarlett Johansson",
-      "The Jonas Brothers",
-      "Halle Berry",
-      "Trevor Noah",
-      "Aubrey Plaza",
-      "Schoolboy Q",
-      "Adam Devine",
-      "Kumail Nanjiani",
-      "Binging with Babish",
-      "Juice WRLD",
-      "Idris Elba",
-      "Kristen Bell",
-      "Stone Cold Steve Austin",
-      "Jay Pharoah",
-      "Shia LaBeouf",
-      "Ashton Kutcher",
-      "Noel Gallagher",
-      "Liza Koshy",
-      "Paul Rudd",
-      "Maisie Williams",
-      "Nick Offerman",
-      "DaBaby",
-      "Kristen Stewart",
-      "Chance the Rapper",
-      "Brad Leone",
-      "John Boyega",
-      "Margot Robbie",
-      "Zoë Kravitz",
-      "Will Ferrell",
-      "Halsey",
-      "Pete Davidson",
-      "David Dobrik",
-      "Big Sean",
-      "Zac Efron",
-      "Justin Timberlake",
-      "Tom Segura",
-      "Brie Larson",
-      "Eric André",
-      "Dan Levy",
-      "Dua Lipa",
-      "T-Pain",
-      "Adam Richman",
-      "Action Bronson",
-      "Drew Barrymore",
-      "Joseph Gordon-Levitt",
-      "Jessica Alba",
-      "Ronda Rousey",
-      "Naomi Campbell",
-      "Matthew McConaughey",
-      "Sam Smith",
-      "Saweetie",
-      "Thundercat",
-      "The Undertaker",
-      "Lil Nas X",
-      "Daniel Radcliffe",
-      "NA",
-      "Priyanka Chopra Jonas",
-      "Dustin Poirier",
-      "Kevin James",
-      "Awkwafina",
-      "Kenan Thompson",
-      "Anthony Mackie",
-      "Paris Hilton",
-      "Jennifer Garner",
-      "J Balvin",
-      "Jeffrey Dean",
-      "Russell Brand",
-      "Steve-O",
-      "Jack Harlow",
-      "Kamaru Usman",
-      "Quavo",
-      "Elizabeth Olsen",
-      "Olivia Rodrigo",
-      "Malcolm Gladwell",
-      "Ed Sheeran",
-      "David Harbour",
-      "Michael Che",
-      "Lorde",
-      "Matt Damon",
-      "Elijah Wood",
-      "Jimmy Kimmel",
-      "Derrick Lewis",
-      "Jon Bernthal",
-      "Megan Thee Stallion",
-      "CL",
-      "Mila Kunis",
-      "Salma Hayek",
-      "Jeremy Renner",
-      "David Chang",
-      "Brad Underwood",
-      "Rob Lowe",
-      "Simu Liu",
-      "Tom Holland",
-      "Gordon Ramsay",
-      "Seth Rogen",
-      "Tracee Ellis Ross",
-      "Ed Helms",
-      "Sebastian Stan",
-      "Andrew Zimmern",
-      "Dave Grohl",
-      "Colin Farrell",
-      "Courteney Cox",
-      "Jacob Elordi",
-      "Pusha T",
-      "Leslie Mann",
-      "Josh Brolin",
-      "Post Malone",
-      "Millie Bobby Brown",
-      "Queen Latifah",
-      "Kevin Bacon",
-      "Khloé Kardashian",
-      "Andrew Callaghan",
-      "Tessa Thompson",
-      "Daniel Kaluuya",
-      "Bear Grylls",
-      "Mark Rober",
-      "Lizzo",
-      "Neil Patrick Harris",
-      "David Blaine",
-      "Kid Cudi",
-      "Viola Davis",
-      "Cole Bennett",
-      "Cate Blanchett",
-      "Emma Chamberlain",
-      "James Corden",
-      "Ramy Youssef",
-      "Israel Adesanya",
-      "Zoe Saldaña",
-      "Kate Hudson",
-      "Paul Dano",
-      "Anna Kendrick",
-      "Bryan Cranston",
-      "Lenny Kravitz",
-      "Austin Butler",
-      "LL Cool J",
-      "Jenna Ortega",
-      "Pedro Pascal",
-      "Niall Horan",
-      "Bob Odenkirk",
-      "Florence Pugh",
-      "Kieran Culkin",
-      "Jake Gyllenhaal",
-      "Jason Sudeikis",
-      "Julia Louis-Dreyfus",
-      "Rosalía",
-      "Melissa McCarthy",
-      "Jennifer Lawrence",
-      "John Mulaney",
-      "Lewis Capaldi",
-      "Harry Kane",
-      "John Stamos",
-      "Stephen Curry"
-    )
-  )
-}
-
-# Episodes across seasons (with guests added)
-episodes <- rvest::read_html("https://en.wikipedia.org/wiki/List_of_Hot_Ones_episodes") |> 
-  rvest::html_table(header = TRUE) |>
-  _[3:23] |>
-  purrr::list_flatten() |>
-  data.table::rbindlist(fill = TRUE) |>
-  dplyr::as_tibble() |>
-  dplyr::filter(
-    row_number() != 257
-  ) |>
-  dplyr::select(-V1) |>
-  purrr::set_names(c("episode_overall", 
-                     "episode_season", 
-                     "title", 
-                     "original_release")) |>
-  dplyr::mutate(
-    episode_overall = as.integer(gsub("[^0-9]", "", episode_overall)),
-    episode_season = as.integer(gsub("[^0-9]", "", episode_season)),
-    # Change "Bonus" episode to 999
-    episode_season = if_else(is.na(episode_season), 999L, episode_season),
-    title = stringr::str_remove_all(title, "\\\""),
-    original_release = stringr::str_extract(
-      original_release, "\\d{4}-\\d{2}-\\d{2}"
-    ) |> 
-      lubridate::ymd()
-  ) |>
-  dplyr::mutate(
-    season = cumsum(episode_season == 1),
-    .before = episode_overall
-  ) |>
-  # Guests are only processed for the first 300 episodes.
-  dplyr::filter(episode_overall <= 300) |> 
-  dplyr::bind_cols(guests) |> 
-  dplyr::mutate(
-    guest_appearance_number = dplyr::row_number(),
-    .by = guest
-  ) |> 
-  dplyr::left_join(
-    hall_of_shame,
-    by = dplyr::join_by(guest, guest_appearance_number)
-  ) |> 
-  dplyr::mutate(
-    finished = tidyr::replace_na(finished, TRUE)
-  )
-
-readr::write_csv(
-  episodes,
-  here::here(
-    "data",
-    "2023",
-    "2023-08-08",
-    "episodes.csv"
-  )
-)
-readr::write_csv(
-  sauces,
-  here::here(
-    "data",
-    "2023",
-    "2023-08-08",
-    "sauces.csv"
-  )
-)
-readr::write_csv(
-  seasons,
-  here::here(
-    "data",
-    "2023",
-    "2023-08-08",
-    "seasons.csv"
-  )
-)
 ```
-##preparing data
+## Initial Data Observation
 ```{r}
-#tasks: Make an "industry" collumn.
-#Make a combined table
-#
+summary(episodes)
+
+summary(sauces)
+
+summary(seasons)
+```
+**The Longest data set is the episodes one, with 300 individual entries. We can also see that the show has been active for around 8 years and counting. The finished column also tells us how many people have failed the show, with 15 failing to eat all the wings. This is much lower than I personally expected. We can also observe the hottest a sauce gets on the show. The highest scoville sauce was 2000000 units which is  880 times hotter than your garden variety jalapeño.**
+
+## Data Exploration
+
+# Spenser's Exploration
+I was interested in the failure rate of each seasons, and how where a person comes from can affect their spice tolerance. I had to add a new column of all the industries that each person is from, then take averages of the failure rate.
+```{r}
+#new occupation column 
+occupation <- c(
+    "Music", "Sports", "Music", "Music", "Music", "Music", "Sports", "Music", "Music", "Music",
+    "Acting", "Acting", "Comedy", "Music", "Acting", "Comedy", "Music", "Comedy", "Comedy", "Comedy",
+    "Comedy", "Comedy", "Sports", "Sports", "Comedy", "Comedy", "Comedy", "Comedy", "Music", "Comedy",
+    "Music", "Comedy", "Acting", "Comedy", "Sports", "Comedy", "Comedy", "Comedy", "Acting", "Acting",
+    "Sports", "Music", "Music", "Acting", "Comedy", "Acting", "Comedy", "Comedy", "Comedy", "Acting",
+    "Music", "Comedy", "Comedy", "Acting", "Comedy", "Comedy", "Acting", "Comedy", "Entertainment", "Acting",
+    "Acting", "Acting", "Sports", "Sports", "Entertainment", "Acting", "Comedy", "Comedy", "Entertainment", "Acting",
+    "Comedy", "Comedy", "Music", "Sports", "Acting", "Acting", "Sports", "Music", "Acting", "Music",
+    "Music", "Acting", "Comedy", "Comedy", "Comedy", "Music", "Music", "Sports", "Comedy", "Acting",
+    "Acting", "Acting", "Music", "Entertainment", "Entertainment", "Acting", "Sports", "Music", "Comedy", "Acting",
+    "Acting", "Acting", "Comedy", "Acting", "Music", "Comedy", "Music", "Comedy", "Acting", "Music",
+    "Acting", "Comedy", "Entertainment", "Comedy", "Acting", "Sports", "Music", "Comedy",
+    "Comedy", "Acting", "Music", "Comedy", "Acting", "Comedy", "Acting", "Comedy", "Music", "Music",
+    "Acting", "Acting", "Acting", "Acting", "Acting", "Acting", "Music", "Entertainment",
+    "Acting", "Acting", "Acting", "Music", "Acting", "Acting", "Music", "Music", "Acting", "Acting",
+    "Comedy", "Acting", "Music", "Acting", "Acting", "Acting", "Music", "Acting", "Comedy", "Acting",
+    "Music", "Acting", "Acting", "Acting", "Acting", "Music", "Acting", "Acting", "Acting", "Comedy",
+    "Acting", "Sports", "Acting", "Acting", "Acting", "Acting", "Acting", "Music", "Acting",
+    "Entertainment", "Acting", "Comedy", "Sports", "Acting", "Acting", "Acting", "Acting",
+    "Music", "Acting", "Acting", "Acting", "Acting", "Acting", "Acting", "Music", "Acting",
+    "Acting", "Acting", "Acting", "Acting", "Acting", "Music", "Acting", "Acting", "Acting",
+    "Acting", "Acting", "Acting", "Music", "Acting", "Acting", "Comedy", "Music", "Sports", "Acting",
+    "Acting", "Sports", "Acting", "Sports", "Acting", "Acting", "Acting", "Acting", "Acting", "Comedy",
+    "Comedy", "Acting", "Acting", "Comedy", "Entertainment", "Music", "Acting", "Comedy",
+    "Acting", "Music", "Acting", "Acting", "Acting", "Acting", "Acting", "Entertainment", "Music", "Acting",
+    "Acting", "Acting", "Comedy", "Music", "Acting", "Acting", "Acting", "Acting", "Acting", "Music",
+    "Comedy", "Acting", "Acting", "Acting", "Acting", "Comedy", "Acting", "Acting", "Acting", "Acting",
+    "Acting", "Acting", "Music", "Acting", "Acting", "Acting", "Acting", "Acting", "Acting", "Acting",
+    "Music", "Acting", "Acting", "Acting", "Acting", "Music", "Acting", "Comedy", "Music", "Sports",
+    "Acting", "Sports", "Acting", "Acting", "Acting", "Acting", "Acting", "Acting", "Acting", "Acting",
+    "Music", "Acting", "Entertainment", "Comedy", "Acting", "Sports", "Acting", "Acting", "Music",
+    "Acting", "Sports"
+)
+
+episodes <- episodes %>%
+  mutate(occupation = occupation)
+
+# Display the updated 'Episodes' data frame
+head(episodes)
 ```
 
 You can also embed plots, for example:
+**Spenser Leise Question 1: What Occupation had the highest failure rate**
+```{r}
+library(dplyr)
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+# Calculate failure rate by occupation
+failure_rates <- episodes %>%
+  group_by(occupation) %>%
+  summarise(failure_rate = mean(!finished))
+
+library(ggplot2)
+
+failure_rates$color <- cut(failure_rates$failure_rate, breaks = c(0.03, 0.04, 0.05, 0.06, 1),
+                           labels = c("#5EFF33","#DAF7A6", "#FFC300", "#FF5733"))
+
+# Create a bar chart
+ggplot(failure_rates, aes(x = reorder(occupation, -failure_rate), y = failure_rate, fill = color)) +
+  geom_bar(stat = "identity", width = 0.7) +
+  labs(
+    title = "Hot Ones Failure Rate by Occupation",
+    x = "Occupation",
+    y = "Failure Rate",
+    caption = "Over the course of first 300 episodes"
+  ) +
+  scale_fill_identity() +  # Use custom fill colors
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+**what season was the hottest?**
+```{r}
+failure_rates <- episodes %>%
+  group_by(season) %>%
+  summarise(failure_rate = mean(!finished)) %>%
+  arrange(season)  # Sort by season (optional)
+
+# Create a bar chart
+ggplot(failure_rates, aes(x = factor(season), y = failure_rate, fill = factor(season))) +
+  geom_bar(stat = "identity", width = 0.7) +
+  labs(
+    title = "Failure Rate by Season",
+    x = "Season",
+    y = "Failure Rate",
+    caption = "Based on sample data"
+  ) +
+  scale_fill_discrete(name = "Season") +  # Use discrete fill scale for season
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+```{r}
+
+scoville_avg <- sauces%>%
+  group_by(season) %>%
+  summarise(avg_scoville = mean(scoville))
+
+# Create a line plot of average Scoville rating by season
+ggplot(scoville_avg, aes(x = season, y = avg_scoville)) +
+  geom_line(color = "orange", size = 1.5) +
+  geom_point(color = "red", size = 3) +
+  labs(
+    title = "Average Scoville Rating by Season",
+    x = "Season",
+    y = "Average Scoville Rating",
+    caption = "Based on sample data"
+  ) +
+  theme_minimal() +
+  scale_x_continuous(breaks = scoville_avg$season, labels = scoville_avg$season) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
