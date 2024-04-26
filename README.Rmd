@@ -245,4 +245,18 @@ print(max(sauces$scoville))
 ```
 **The Last Dab and all its variations are, indeed, the hottest sauce. They all have a heat of 2 million scoville units.**
 
+```{r }
+hottest_seasons <- sauces |>
+  filter(scoville == max(scoville)) |>
+  select(season)
+unique(hottest_seasons$season)
+```
+**From Season 4 onwards, the Last Dab (or one of its variations) appears.**
 
+**How many people have failed Hot Ones?**
+```{r }
+episodes |>
+  filter(finished == FALSE) |>
+  select(season, guest)
+```
+**Fifteen people have failed hot ones: Tony Yayo, DJ Khaled, Mike Epps, Jim Gaffigan, Rob Corddry, Ricky Gervais, Mario Batali, Taraji P. Henosn, Lil Yachty, E-40, Shaq, Chance the Rapper, Eric André, Quavo, and Pusha T.**
