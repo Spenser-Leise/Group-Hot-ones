@@ -213,7 +213,7 @@ ggplot(data = episodes, aes(x = occupation)) +
         strip.text.x = element_blank()) 
 
 ```
-<br>**It seems the amount of actors appearing on the show has increased relative to other occupations as the seasons progress.**
+<br>**It seems the amount of actors appearing on the show has increased relative to other occupations as the seasons progress. Comedy and entertainment made up a significant portion of guests in the early seasons, but seem to have dropped off significantly after season 6 or so. Sports seems to be the most consistently lowest appearing occupation.**
 
 **How do the lengths of seasons compare?**
 ```{r}
@@ -221,13 +221,13 @@ seasons$length <- seasons$last_release - seasons$original_release
 head(seasons)
 
 ggplot(seasons, aes(x = season, y = length, group = 1)) +
-  geom_line(color = "blue") +  # Plot a line connecting the points
-  geom_point(color = "blue") +  # Plot points
-  labs(x = "Season Number", y = "Length") +  # Label axes
-  theme_minimal() +  # Apply a minimal theme
-  ggtitle("Length Over Time")  # Add a title
+  geom_line(color = "blue") +  
+  geom_point(color = "blue") +  
+  labs(x = "Season Number", y = "Length") +  
+  theme_minimal() +  
+  ggtitle("Length Over Time")  
 ```
-<br>**The first and second season were much longer than the others, with a sharp decline occurding after season 2 into season 3.**
+<br>**The first and second season were much longer than the others, with a sharp decline occurding after season 2 into season 3. The longest season was season 2, being around 400 days long. Length of season stabilizes after season 5 at around 90 days.**
 
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
