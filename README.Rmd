@@ -44,7 +44,7 @@ What industries have the most people on hot ones? Are there any correlations to 
 What correlations can be made for each season, and what changes were made?
 
 ## Cleaning The data/preparing data
-As our data sets are scraped off the web, it would be assumed that there would be viggorous cleaning needed for the set itself. However, Tidy Tuesday helps us with a cleaning script that had alredy been ran on the data. We have included the cleaning script here (it will fail as it has already been ran with the package)
+As our data sets are scraped off the web, it would be assumed that there would be viggorous cleaning needed for the set itself. However, Tidy Tuesday helps us with a cleaning script that had already been ran on the data. We have included the cleaning script here (it will fail as it has already been ran with the package)
 ```{r}
 ### Suggested TidyTuesday dataset: 
 ### 300 Hot Ones episodes (guests and sauces), seasons 1-21 (current)
@@ -191,6 +191,44 @@ ggplot(scoville_avg, aes(x = season, y = avg_scoville)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 ```
+### Luke Juffer's exploration
+I was interested in what occupations show up most frequently on hot ones how the length of seasons compare.
+
+**what occupations show up most frequently?**
+```{r}
+ggplot(data = episodes, aes(x = occupation)) +
+  geom_bar(fill = "skyblue", color = "black") +
+  labs(title = "Comparison of Occupations",
+       x = "Occupation",
+       y = "Count")
+
+
+ggplot(data = episodes, aes(x = occupation)) +
+  geom_bar(fill = "skyblue", color = "black") +
+  labs(title = "Comparison of Occupations",
+       x = "Occupation",
+       y = "Count") +
+  facet_wrap(~ season) +
+  theme(axis.text.x = element_blank(),  
+        strip.text.x = element_blank()) 
+
+```
+<br>**It seems the amount of actors appearing on the show has increased relative to other occupations as the seasons progress.**
+
+**How do the lengths of seasons compare?**
+```{r}
+seasons$length <- seasons$last_release - seasons$original_release
+head(seasons)
+
+ggplot(seasons, aes(x = season, y = length, group = 1)) +
+  geom_line(color = "blue") +  # Plot a line connecting the points
+  geom_point(color = "blue") +  # Plot points
+  labs(x = "Season Number", y = "Length") +  # Label axes
+  theme_minimal() +  # Apply a minimal theme
+  ggtitle("Length Over Time")  # Add a title
+```
+<br>**The first and second season were much longer than the others, with a sharp decline occurding after season 2 into season 3.**
+
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
 
