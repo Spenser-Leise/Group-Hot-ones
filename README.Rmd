@@ -190,7 +190,7 @@ ggplot(scoville_avg, aes(x = season, y = avg_scoville)) +
   scale_x_continuous(breaks = scoville_avg$season, labels = scoville_avg$season) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
-```
+
 ### Luke Juffer's exploration
 I was interested in what occupations show up most frequently on hot ones how the length of seasons compare.
 
@@ -231,4 +231,18 @@ ggplot(seasons, aes(x = season, y = length, group = 1)) +
 
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+### Ryan's Exploration
+Viewers of the show will recognize the notorious sauce "The Last Dab", but we wanted to verify that it was the hottest sauce of all.
+**what is the hottest sauce?**
+```{r }
+hottest_sauces <- sauces |>
+  filter(scoville == max(scoville)) |>
+  select(sauce_name)
+
+unique(hottest_sauces$sauce_name)
+print(max(sauces$scoville))
+```
+**The Last Dab and all its variations are, indeed, the hottest sauce. They all have a heat of 2 million scoville units.**
+
 
