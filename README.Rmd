@@ -8,10 +8,12 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+# Examining 'Hot Ones' Data
+Luke Juffer, Ryan Nagao, Mason Sackpraseuth, and Spenser Leise
 
 ## Introduction:
 
-  Hot Ones is an internet show about guests from various industries eating spicy wings that get increasingly hot wing after wing. The guest is also interviewed as the show goes on. The show is beloved by audiences and has 3 sets of data that have been scraped off of the Hot Ones Wikipedia. The resident wing enjoyers hope to enjoy dissecting a dataset about just that.
+  Hot Ones is a popular internet show about guests from various industries eating spicy wings that get increasingly hot wing after wing. The guest is also interviewed as the show goes on. We have 3 sets of data that have been scraped off of the Hot Ones Wikipedia. Hot Ones has become a cultural landmark in recent years, and we believe that by analyzing the data available we can draw interesting conclusions regarding celebrity status and viewer's interests.
   
 ## Mission Statement:
   
@@ -42,6 +44,7 @@ What season has the hottest sauce?
 What is the hottest sauce featured on the show?
 What industries have the most people on hot ones? Are there any correlations to their performance?
 What correlations can be made for each season, and what changes were made?
+What observable changes are there on the types of guests that appear over time?
 
 ## Cleaning The data/preparing data
 As our data sets are scraped off the web, it would be assumed that there would be viggorous cleaning needed for the set itself. However, Tidy Tuesday helps us with a cleaning script that had already been ran on the data. We have included the cleaning script here (it will fail as it has already been ran with the package)
@@ -73,8 +76,8 @@ summary(seasons)
 ```
 **The Longest data set is the episodes one, with 300 individual entries. We can also see that the show has been active for around 8 years and counting. The finished column also tells us how many people have failed the show, with 15 failing to eat all the wings. This is much lower than I personally expected. We can also observe the hottest sauce on the show. The highest scoville sauce was 2000000 units which is  880 times hotter than your garden variety jalapeño.**
 
-## Variable Names
-# episodes
+# Variable Names
+## episodes
 season: what season the episode premiered during
 episode_overall: what number the episode is, regardless of season
 episode_season: what number the episode is within the season
@@ -85,19 +88,19 @@ guest_appearance_number: the number of times the guest had been on the show
 finished: false if they did not finish their wings, true if they did
 occupation: what field the guest works in
 
-# sauces
+## sauces
 season: what season the sauce appeared during
 sauce_number: what order the sauces were presented in during the episode
 sauce_name: the name of the sauce
 scoville: a measurement of the spice level of the sauce
 
-# seasons
+## seasons
 season: what season the sauce appeared during
 episodes: number of episodes in the season
 original_release: release date of the first episode in the season
 last_release: release date of the last episode in the season
 
-## Data Exploration
+# Data Exploration
 
 ### Spenser's Exploration
 I was interested in the failure rate of each season and how where a person comes from can affect their spice tolerance. I had to add a new column of all the industries that each person is from and then take averages of the failure rate.
@@ -284,3 +287,8 @@ episodes |>
   select(season, guest)
 ```
 **Fifteen people have failed hot ones: Tony Yayo, DJ Khaled, Mike Epps, Jim Gaffigan, Rob Corddry, Ricky Gervais, Mario Batali, Taraji P. Henosn, Lil Yachty, E-40, Shaq, Chance the Rapper, Eric André, Quavo, and Pusha T.**
+
+# Conclusions
+In conclusion, we have drawn out several interesting insights from our datasets regarding Hot Ones and it's guests. For example, we found that the failure rate was the highest by far in season 1 at 25%, dropping off sharply after and hovering at around 8%. This could suggest that cultural or viewership changes took place, and that guests on the show don't wish to appear uncommitted or weak by not finishing their wings. This is reinforced by the fact that we see the average scoville rating by season increase to 300,000 by season 5. We would expect this to increase the failure rate, but the fact that failure rate remains low suggests that external factors influence the failure rate. We also observe a sharp decline in the length of seasons between 1-5. These observations suggest that the show did not reach a steady formula until around the 5th season.
+
+Further data collection could allow us to draw out additional interesting conclusions. For example, data on views per video would let us look at the effect of occupation, release date, and maybe even title on viewership. We could also collect data for more recent episodes, as episodes are constatly being released.
