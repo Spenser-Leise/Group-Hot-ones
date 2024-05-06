@@ -290,6 +290,15 @@ episodes |>
   select(season, guest)
 ```
 **Fifteen people have failed hot ones: Tony Yayo, DJ Khaled, Mike Epps, Jim Gaffigan, Rob Corddry, Ricky Gervais, Mario Batali, Taraji P. Henosn, Lil Yachty, E-40, Shaq, Chance the Rapper, Eric André, Quavo, and Pusha T.**
+```{r}
+ggplot(data = sauces) +
+  geom_boxplot(aes(x = as.factor(season),
+                   y = log(scoville))) +
+  labs(x = "Season",
+       y = "Log Heat (Scovilles)") +
+  theme_minimal()
+```
+Looking at the distribution of scoville rating per season, we see similar behavior to the previous graph of average scoville rating per season. Also similar to other conclusions we've seen in this investigation, it seems that the show as a whole finds a consistent rhythm around Season 5, where the distribution is fairly similar afterwards.
 
 ```{r }
 failures <- episodes |>
