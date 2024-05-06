@@ -36,7 +36,7 @@ head(sauces)
 ```{r}
 head(episodes)
 ```
-## Questions for data set (Please add more if there is something you want to explore!)
+## Potential questions we could ask
 How many people have failed the show?
 What season has the hottest sauce?
 What is the hottest sauce featured on the show?
@@ -53,7 +53,7 @@ As our data sets are scraped off the web, it would be assumed that there would b
 #https://github.com/rfordatascience/tidytuesday/blob/master/data/2023/2023-08-08/readme.md
 ```
 
-There are a couple of columns that are not needed for our exploration. The notes column in the season's table is not important to our exploration.(add cleaning that you need for your personal exploration) We removed all this with a cleaning script of our own. Shown Below.
+There are a couple of columns that are not needed for our exploration. The notes column in the season's table is not important to our exploration. We removed all this with a cleaning script of our own. Shown Below.
 ```{r}
 library(tidyverse)
 library(rvest)
@@ -72,6 +72,30 @@ summary(sauces)
 summary(seasons)
 ```
 **The Longest data set is the episodes one, with 300 individual entries. We can also see that the show has been active for around 8 years and counting. The finished column also tells us how many people have failed the show, with 15 failing to eat all the wings. This is much lower than I personally expected. We can also observe the hottest sauce on the show. The highest scoville sauce was 2000000 units which is  880 times hotter than your garden variety jalapeño.**
+
+## Variable Names
+# episodes
+season: what season the episode premiered during
+episode_overall: what number the episode is, regardless of season
+episode_season: what number the episode is within the season
+title: the title of the youtube video
+original_release: release date of the youtube video
+guest: the name of the celebrity guest
+guest_appearance_number: the number of times the guest had been on the show
+finished: false if they did not finish their wings, true if they did
+occupation: what field the guest works in
+
+# sauces
+season: what season the sauce appeared during
+sauce_number: what order the sauces were presented in during the episode
+sauce_name: the name of the sauce
+scoville: a measurement of the spice level of the sauce
+
+# seasons
+season: what season the sauce appeared during
+episodes: number of episodes in the season
+original_release: release date of the first episode in the season
+last_release: release date of the last episode in the season
 
 ## Data Exploration
 
