@@ -330,15 +330,15 @@ failures_merge <- failures_merge %>%
 failures_merge
 ```
 ```{r}
-ggplot(failures_merge, aes(x = guest, y = scoville, fill = sauce_name)) +
+ggplot(failures_merge, aes(y = guest, x = scoville, fill = sauce_name)) +
   geom_bar(stat = "identity", width = 0.7) +
   labs(title = "The Wing Each Wall of Shame Member Failed On",
-       x = "Guest",
-       y = "Scoville Units") +
+       y = "Guest",
+       x = "Scoville Units") +
   theme(
     legend.box.margin = margin(5, 5, 5, 5),
     axis.text.x = element_text(angle = 70, hjust = 1.05)) +
-    scale_y_continuous(labels = scales::comma)
+    scale_x_continuous(labels = scales::comma)
          
 ```
     
