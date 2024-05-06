@@ -20,6 +20,9 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Importing the data sets
 
   There are 3 data sets that make up the hot ones data set. all of them being important to our mission. One is episodes, the people featured and data if they finished their wings or not. Then Sauces, where we can see how hot each sauce is and the name. Then Seasons which has other notes. 
+  
+(link to dataset - not sure where we want to put this)
+#https://github.com/rfordatascience/tidytuesday/blob/master/data/2023/2023-08-08/readme.md
 
 ```{r}
 episodes <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-08-08/episodes.csv')
