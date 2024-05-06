@@ -291,6 +291,39 @@ episodes |>
 ```
 **Fifteen people have failed hot ones: Tony Yayo, DJ Khaled, Mike Epps, Jim Gaffigan, Rob Corddry, Ricky Gervais, Mario Batali, Taraji P. Henosn, Lil Yachty, E-40, Shaq, Chance the Rapper, Eric André, Quavo, and Pusha T.**
 
+```{r }
+failures <- episodes |>
+  filter(finished == FALSE) |>
+  select(season, guest)
+
+failures$sauce_number <- c(4,3,7,8,8,8,8,6,8,8,9,8,8,8,8)
+  
+failures_merge <- merge(failures, sauces, by= "season") |>
+  filter(sauce_number.x == sauce_number.y)
+
+failures_merge$sauce_number <- failures_merge$sauce_number.x
+
+failures_merge <- failures_merge %>%
+  select(-sauce_number.x, -sauce_number.y)
+
+failures_merge <- failures_merge %>%
+  select(season, guest, sauce_number, sauce_name, scoville) %>%
+  mutate(sauce_name = if_else(grepl("Da' Bomb", sauce_name),"Da' Bomb Beyond Insanity", sauce_name))
+
+failures_merge
+```
+```{r}
+ggplot(failures_merge, aes(x = guest, y = scoville, fill = sauce_name)) +
+  geom_bar(stat = "identity", width = 0.7) +
+  labs(title = "The Wing Each Hall of Shame Member Failed On",
+       x = "Guest",
+       y = "Scoville Units") +
+  theme(
+    legend.box.margin = margin(5, 5, 5, 5),
+    axis.text.x = element_text(angle = 70, hjust = 1.05))+
+  scale_y_continuous(labels = scales::comma)
+         
+```
 # Conclusions
 In conclusion, we have drawn out several interesting insights from our datasets regarding Hot Ones and it's guests. For example, we found that the failure rate was the highest by far in season 1 at 25%, dropping off sharply after and hovering at around 8%. This could suggest that cultural or viewership changes took place, and that guests on the show don't wish to appear uncommitted or weak by not finishing their wings. This is reinforced by the fact that we see the average scoville rating by season increase to 300,000 by season 5. We would expect this to increase the failure rate, but the fact that failure rate remains low suggests that external factors influence the failure rate. We also observe a sharp decline in the length of seasons between 1-5. These observations suggest that the show did not reach a steady formula until around the 5th season.
 
